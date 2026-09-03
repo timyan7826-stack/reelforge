@@ -29,6 +29,31 @@ def _cmd_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_batch(args: argparse.Namespace) -> int:
+    """Run the pipeline for every topic in a file — one video per line."""
+    cfg = load_config(args.config)
+    topics_file = Path(args.topics_file)
+    if not topics_file.exists():
+        raise FileNotFoundError(f"topics file not found: {topics_file}")
+    topics = [
+        line.strip()
+        for line in topics_file.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.strip().startswith("#")
+    ]
+    if not topics:
+        raise ValueError(f"no topics found in {topics_file} (skip blank lines / # comments)")
+    print(f"ReelForge batch: {len(topics)} topic(s) from {topics_file}")
+    videos = []
+    for i, topic in enumerate(topics, 1):
+        print(f"\n== [{i}/{len(topics)}] {topic} ==")
+        result = run_pipeline(cfg, topic, out_root=args.out)
+        videos.append(str(result["final_video"]))
+    print(f"\nBatch complete: {len(videos)} video(s) generated.")
+    for v in videos:
+        print(f"  ▶ {v}")
+    return 0
+
+
 def _cmd_version(_: argparse.Namespace) -> int:
     print(f"reelforge {__version__}")
     return 0
@@ -51,6 +76,12 @@ def build_parser() -> argparse.ArgumentParser:
     p_run.add_argument("-o", "--out", default=None, help="output root directory")
     p_run.add_argument("--run-id", default=None, help="explicit run id (deterministic path)")
     p_run.set_defaults(func=_cmd_run)
+
+    p_batch = sub.add_parser("batch", help="run the pipeline for many topics (one per line in a file)")
+    p_batch.add_argument("-c", "--config", default="config.toml")
+    p_batch.add_argument("-t", "--topics-file", required=True, help="text file with one topic per line")
+    p_batch.add_argument("-o", "--out", default=None, help="output root directory")
+    p_batch.set_defaults(func=_cmd_batch)
 
     p_ver = sub.add_parser("version", help="print version")
     p_ver.set_defaults(func=_cmd_version)

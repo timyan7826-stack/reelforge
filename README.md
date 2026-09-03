@@ -2,6 +2,13 @@
 
 > Topic in, MP4 out — deterministically.
 
+[![CI](https://img.shields.io/github/actions/workflow/status/timyan7826-stack/reelforge/ci.yml?branch=main&label=CI)](https://github.com/timyan7826-stack/reelforge/actions)
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue)](#)
+[![dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](#)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
+
+**English** | [简体中文](README.zh-CN.md)
+
 ReelForge is an open-source, **deterministic-first** AI short-video generation engine. Give it a topic, it runs a six-stage pipeline — **script → storyboard → assets → voiceover → captions → render** — and produces a ready-to-publish MP4. Every stage is a swappable step and every backend is pluggable, so you get reproducible output, batch-friendly consistency, and auditable cost.
 
 Unlike one-shot "topic-to-video" black boxes, ReelForge is built for people who need **control**: content teams, educators, indie creators, and marketers who produce video in volume with a consistent style.
@@ -109,12 +116,17 @@ seed = 0                # 0 = seed derived from topic (deterministic per topic)
 
 ## Batch production
 
-The pipeline is config-driven and stateless between runs, so batching is just a loop:
+The pipeline is config-driven and stateless between runs, so batching is a built-in command — one topic per line in a file:
 
 ```bash
-for t in "topic A" "topic B" "topic C"; do
-  reelforge run -c config.toml --topic "$t"
-done
+reelforge batch -c config.toml --topics-file topics.txt
+```
+
+```text
+# topics.txt — blank lines and # comments are ignored
+How transistors work
+Why the sky is blue
+The history of the internet
 ```
 
 All runs share the same wiring (same LLM, same TTS voice, same render settings) → consistent style across the batch, with an auditable cost report per video.

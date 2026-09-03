@@ -68,6 +68,24 @@ def test_deterministic_script_for_same_topic(tmp_path):
     assert sa == sb
 
 
+@pytest.mark.skipif(not HAVE_FFMPEG, reason="ffmpeg not installed")
+def test_batch_cli_produces_one_video_per_topic(tmp_path):
+    from reelforge.cli import main
+
+    topics = tmp_path / "topics.txt"
+    topics.write_text(
+        "# comment line\nBatch topic one\n\nBatch topic two\n", encoding="utf-8"
+    )
+    out = tmp_path / "out"
+    rc = main(["batch", "-c", str(DEMO_CONFIG), "-t", str(topics), "-o", str(out)])
+    assert rc == 0
+    runs = [p for p in out.iterdir() if p.is_dir()]
+    assert len(runs) == 2
+    for r in runs:
+        assert (r / "final.mp4").exists()
+        assert (r / "cost-report.json").exists()
+
+
 def test_empty_topic_rejected(tmp_path):
     with pytest.raises(ValueError):
         run_pipeline(_offline_cfg(tmp_path), "   ")
