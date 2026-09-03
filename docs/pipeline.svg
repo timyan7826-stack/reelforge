@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="300" viewBox="0 0 980 300" font-family="'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0f1620"/>
+      <stop offset="100%" stop-color="#182236"/>
+    </linearGradient>
+    <linearGradient id="box" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#24344f"/>
+      <stop offset="100%" stop-color="#1b2838"/>
+    </linearGradient>
+  </defs>
+  <rect width="980" height="300" rx="14" fill="url(#bg)"/>
+  <text x="40" y="52" font-size="26" font-weight="700" fill="#e8eef7">ReelForge pipeline</text>
+  <text x="40" y="78" font-size="14" fill="#8fa3bf">topic in → MP4 out — every stage a swappable step</text>
+
+  <!-- stage boxes -->
+  <g>
+    <rect x="40"  y="130" width="120" height="64" rx="10" fill="url(#box)" stroke="#3d5a80" stroke-width="1.2"/>
+    <text x="100" y="158" font-size="15" font-weight="600" fill="#f0f5ff" text-anchor="middle">1. Script</text>
+    <text x="100" y="178" font-size="11" fill="#9fb2cc" text-anchor="middle">LLM → title + lines</text>
+  </g>
+  <g>
+    <rect x="200" y="130" width="120" height="64" rx="10" fill="url(#box)" stroke="#3d5a80" stroke-width="1.2"/>
+    <text x="260" y="158" font-size="15" font-weight="600" fill="#f0f5ff" text-anchor="middle">2. Storyboard</text>
+    <text x="260" y="178" font-size="11" fill="#9fb2cc" text-anchor="middle">line → visual scene</text>
+  </g>
+  <g>
+    <rect x="360" y="130" width="120" height="64" rx="10" fill="url(#box)" stroke="#3d5a80" stroke-width="1.2"/>
+    <text x="420" y="158" font-size="15" font-weight="600" fill="#f0f5ff" text-anchor="middle">3. Assets</text>
+    <text x="420" y="178" font-size="11" fill="#9fb2cc" text-anchor="middle">stock / local / placeholder</text>
+  </g>
+  <g>
+    <rect x="520" y="130" width="120" height="64" rx="10" fill="url(#box)" stroke="#3d5a80" stroke-width="1.2"/>
+    <text x="580" y="158" font-size="15" font-weight="600" fill="#f0f5ff" text-anchor="middle">4. Voiceover</text>
+    <text x="580" y="178" font-size="11" fill="#9fb2cc" text-anchor="middle">TTS per scene</text>
+  </g>
+  <g>
+    <rect x="680" y="130" width="120" height="64" rx="10" fill="url(#box)" stroke="#3d5a80" stroke-width="1.2"/>
+    <text x="740" y="158" font-size="15" font-weight="600" fill="#f0f5ff" text-anchor="middle">5. Captions</text>
+    <text x="740" y="178" font-size="11" fill="#9fb2cc" text-anchor="middle">SRT + ASS timeline</text>
+  </g>
+  <g>
+    <rect x="840" y="130" width="100" height="64" rx="10" fill="#2e4a3a" stroke="#4f8a63" stroke-width="1.2"/>
+    <text x="890" y="158" font-size="15" font-weight="600" fill="#eafff0" text-anchor="middle">6. Render</text>
+    <text x="890" y="178" font-size="11" fill="#a8d5b5" text-anchor="middle">ffmpeg → MP4</text>
+  </g>
+
+  <!-- arrows -->
+  <g stroke="#5a7399" stroke-width="2" marker-end="url(#arrow)">
+    <line x1="160" y1="162" x2="196" y2="162"/>
+    <line x1="320" y1="162" x2="356" y2="162"/>
+    <line x1="480" y1="162" x2="516" y2="162"/>
+    <line x1="640" y1="162" x2="676" y2="162"/>
+    <line x1="800" y1="162" x2="836" y2="162"/>
+  </g>
+
+  <!-- determinism footer -->
+  <rect x="40" y="230" width="900" height="40" rx="8" fill="none" stroke="#33486b" stroke-width="1" stroke-dasharray="5 4"/>
+  <text x="490" y="255" font-size="12.5" fill="#7d93b5" text-anchor="middle">fixed seed · pluggable backends · per-run manifest · auditable cost report</text>
+</svg>

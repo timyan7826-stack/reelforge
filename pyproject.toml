@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reelforge"
+version = "0.1.0"
+description = "Deterministic, modular, batch-first AI short-video generation engine (topic -> script -> storyboard -> assets -> voiceover -> captions -> render)."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "ReelForge contributors" }]
+keywords = ["video", "ai", "workflow", "automation", "short-video", "pipeline", "ffmpeg"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Multimedia :: Video",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.scripts]
+reelforge = "reelforge.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+include = ["reelforge*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

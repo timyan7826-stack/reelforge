@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Unit tests
+        run: pytest -v
+
+      - name: Offline end-to-end render (no API keys)
+        run: |
+          reelforge run -c examples/demo.toml --topic "End to end render test" -o ci-output
+
+      - name: Verify final artifact
+        run: |
+          test -s ci-output/*/final.mp4
+          test -s ci-output/*/manifest.json
+          test -s ci-output/*/cost-report.json
+          echo "final.mp4, manifest.json, cost-report.json all present and non-empty"

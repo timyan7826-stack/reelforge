@@ -1,0 +1,28 @@
+# Offline demo configuration — zero API keys required.
+# Used by CI and for trying ReelForge without any credentials.
+#   reelforge run -c examples/demo.toml --topic "How transistors work"
+
+[project]
+name = "reelforge"
+
+[topic]
+default = "How transistors work"
+
+[llm]
+backend = "template"    # offline, deterministic script + storyboard
+
+[assets]
+backend = "placeholder"
+
+[voiceover]
+backend = "silence"     # offline placeholder voice
+
+[render]
+subtitles = true
+bgm = ""
+
+[output]
+dir = "output"
+
+[reproducibility]
+seed = 42

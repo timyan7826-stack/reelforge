@@ -1,0 +1,48 @@
+# ReelForge example configuration.
+# Copy to config.toml, edit, then run:
+#   reelforge run -c config.toml --topic "你的主题"
+
+[project]
+name = "reelforge"
+
+[topic]
+default = ""            # optional default topic; CLI --topic overrides it
+
+# ---- LLM (script + storyboard) -----------------------------------------
+[llm]
+backend = "openai"      # openai | template   (template = offline demo, no key)
+model = "gpt-4o-mini"   # any OpenAI-compatible model id
+base_url = ""           # optional: DeepSeek / Moonshot / Ollama OpenAI bridge
+api_key = ""            # or set env OPENAI_API_KEY
+
+[script]
+max_tokens = 1500
+temperature = 0.7
+
+[storyboard]
+max_tokens = 2000
+temperature = 0.7
+
+# ---- Visual assets ------------------------------------------------------
+[assets]
+backend = "placeholder" # placeholder | pexels | local
+api_key = ""            # Pexels key required for backend="pexels"
+dir = ""                # local image folder for backend="local"
+
+# ---- Voiceover ----------------------------------------------------------
+[voiceover]
+backend = "silence"     # openai | silence  (silence = offline placeholder)
+model = "gpt-4o-mini-tts"
+voice = "alloy"
+
+# ---- Render -------------------------------------------------------------
+[render]
+subtitles = true        # burn captions into the final video
+bgm = ""                # optional path to a background music file
+
+# ---- Output & reproducibility -------------------------------------------
+[output]
+dir = "output"
+
+[reproducibility]
+seed = 0                # 0 = derive seed from topic (deterministic per topic)
