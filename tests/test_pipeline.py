@@ -7,6 +7,7 @@ on runners without ffmpeg so the rest of the suite still validates.
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from pathlib import Path
 
@@ -66,6 +67,34 @@ def test_deterministic_script_for_same_topic(tmp_path):
     sa = (a["run_dir"] / "script.json").read_text(encoding="utf-8")
     sb = (b["run_dir"] / "script.json").read_text(encoding="utf-8")
     assert sa == sb
+
+
+@pytest.mark.skipif(not HAVE_FFMPEG, reason="ffmpeg not installed")
+def test_transition_and_caption_style(tmp_path):
+    """Transitions overlap clips and captions must shift accordingly."""
+    cfg = _offline_cfg(tmp_path, seed=13)
+    cfg["render"]["transition"] = "fade"
+    cfg["render"]["transition_duration"] = 0.5
+    cfg["render"]["caption_style"] = "pop"
+    result = run_pipeline(cfg, "Transition test")
+
+    video = result["final_video"]
+    assert video is not None and video.exists()
+
+    ass = (result["run_dir"] / "captions.ass").read_text(encoding="utf-8")
+    assert "Style: Default,Noto Sans CJK SC,72," in ass  # pop style fontsize
+    # ASS timestamps must use centiseconds, never milliseconds.
+    assert not re.search(r"\d\.\d{3}", ass), "ASS timestamp used milliseconds"
+
+    srt = (result["run_dir"] / "captions.srt").read_text(encoding="utf-8")
+    cues = [ln for ln in srt.splitlines() if "-->" in ln]
+    assert len(cues) >= 2
+    # scene 2 must start exactly (scene1.end - 0.5s) on the final timeline
+    def _sec(ts: str) -> float:
+        return float(ts.split(":")[2].replace(",", "."))
+    end1 = _sec(cues[0].split(" --> ")[1])
+    start2 = _sec(cues[1].split(" --> ")[0])
+    assert abs(start2 - (end1 - 0.5)) < 0.05
 
 
 @pytest.mark.skipif(not HAVE_FFMPEG, reason="ffmpeg not installed")

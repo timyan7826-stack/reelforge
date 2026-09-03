@@ -39,6 +39,9 @@ voice = "alloy"
 [render]
 subtitles = true        # burn captions into the final video
 bgm = ""                # optional path to a background music file
+transition = "none"     # none | fade | slideleft | circleopen | ... (ffmpeg xfade)
+transition_duration = 0.5
+caption_style = "clean" # clean | pop | neon
 
 # ---- Output & reproducibility -------------------------------------------
 [output]

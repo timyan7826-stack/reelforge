@@ -75,18 +75,25 @@ class RenderStage(Stage):
                 str(clip),
             ])
 
-        # 2) concat
-        concat_list = clips_dir / "concat.txt"
-        concat_list.write_text(
-            "\n".join(f"file '{c.name}'" for c in sorted(clips_dir.glob("scene_*.mp4"))),
-            encoding="utf-8",
-        )
+        # 2) concat (with optional scene transitions)
+        transition = str(cfg.get("transition", "none"))
+        td = float(cfg.get("transition_duration", 0.5))
+        clips = sorted(clips_dir.glob("scene_*.mp4"))
         joined = run_dir / "final_joined.mp4"
-        run_ffmpeg([
-            "-f", "concat", "-safe", "0", "-i", str(concat_list),
-            "-c:v", "libx264", "-c:a", "aac", "-movflags", "+faststart",
-            str(joined),
-        ])
+        if transition in ("none", "") or len(clips) < 2:
+            concat_list = clips_dir / "concat.txt"
+            concat_list.write_text(
+                "\n".join(f"file '{c.name}'" for c in clips), encoding="utf-8"
+            )
+            run_ffmpeg([
+                "-f", "concat", "-safe", "0", "-i", str(concat_list),
+                "-c:v", "libx264", "-c:a", "aac", "-movflags", "+faststart",
+                str(joined),
+            ])
+        else:
+            durations = [float(sc.get("duration", 3.0)) for sc in scenes]
+            self._concat_with_transitions(clips, durations, td, transition, joined)
+            print(f"  [render] transitions: {transition} ({td:.1f}s)")
 
         # 3) optional captions burn
         final = run_dir / "final.mp4"
@@ -115,6 +122,38 @@ class RenderStage(Stage):
         print(f"  [render] final.mp4 ready ({dur:.1f}s, {final.stat().st_size / 1e6:.1f} MB)")
 
     # --- helpers ----------------------------------------------------------
+
+    def _concat_with_transitions(self, clips: list[Path], durations: list[float],
+                                 td: float, transition: str, dst: Path) -> None:
+        """Chain all clips with xfade (video) + acrossfade (audio)."""
+        n = len(clips)
+        parts: list[str] = []
+        prev_v = "[0:v]"
+        prev_a = "[0:a]"
+        for i in range(1, n):
+            off = sum(durations[:i]) - i * td
+            v_out, a_out = f"[v{i}]", f"[a{i}]"
+            parts.append(
+                f"{prev_v}[{i}:v]xfade=transition={transition}"
+                f":duration={td}:offset={off:.3f}{v_out}"
+            )
+            parts.append(f"{prev_a}[{i}:a]acrossfade=d={td}{a_out}")
+            prev_v, prev_a = v_out, a_out
+
+        cmd = [shutil.which("ffmpeg"), "-y"]
+        for c in clips:
+            cmd += ["-i", str(c)]
+        cmd += [
+            "-filter_complex", ";".join(parts),
+            "-map", prev_v, "-map", prev_a,
+            "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "veryfast",
+            "-c:a", "aac", "-movflags", "+faststart",
+            str(dst),
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True)
+        if proc.returncode != 0:
+            tail = "\n".join(proc.stderr.strip().splitlines()[-8:])
+            raise RuntimeError(f"xfade transition failed:\n{tail}")
 
     def _burn_subtitles(self, src: Path, ass: Path, dst: Path) -> None:
         font = _find_cjk_font()

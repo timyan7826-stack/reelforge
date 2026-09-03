@@ -19,7 +19,13 @@ DEFAULTS: dict = {
     "storyboard": {"max_tokens": 2000, "temperature": 0.7},
     "assets": {"backend": "placeholder", "api_key": "", "dir": ""},
     "voiceover": {"backend": "silence", "model": "gpt-4o-mini-tts", "voice": "alloy"},
-    "render": {"subtitles": True, "bgm": ""},
+    "render": {
+        "subtitles": True,
+        "bgm": "",
+        "transition": "none",          # none | fade | slideleft | circleopen | ...
+        "transition_duration": 0.5,
+        "caption_style": "clean",      # clean | pop | neon
+    },
     "output": {"dir": "output"},
     "reproducibility": {"seed": 0},
 }
@@ -110,6 +116,9 @@ voice = "alloy"
 [render]
 subtitles = true        # burn captions into the final video
 bgm = ""                # optional path to a background music file
+transition = "none"     # none | fade | slideleft | circleopen | ... (ffmpeg xfade)
+transition_duration = 0.5
+caption_style = "clean" # clean | pop | neon
 
 # ---- Output & reproducibility -------------------------------------------
 [output]
