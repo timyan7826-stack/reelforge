@@ -25,7 +25,7 @@ temperature = 0.7
 
 # ---- Visual assets ------------------------------------------------------
 [assets]
-backend = "placeholder" # placeholder | pexels | local
+backend = "placeholder" # placeholder | picsum | pexels | local
 api_key = ""            # Pexels key required for backend="pexels"
 dir = ""                # local image folder for backend="local"
 

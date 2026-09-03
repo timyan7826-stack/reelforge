@@ -24,6 +24,10 @@ class PipelineContext:
     data: dict = field(default_factory=dict)  # cross-stage data handoff
     warnings: list = field(default_factory=list)
 
+    def warn(self, message: str) -> None:
+        """Record a non-fatal warning; surfaced in the manifest and CLI output."""
+        self.warnings.append(message)
+
 
 class Stage(ABC):
     """Interface every pipeline stage implements."""

@@ -43,7 +43,7 @@ topic
   ▼
 [2] Storyboard    each line → a concrete visual scene description
   ▼
-[3] Assets        per-scene background image (stock / local / placeholder)
+[3] Assets        per-scene background image (pexels / picsum / local / placeholder)
   ▼
 [4] Voiceover     per-scene narration WAV (TTS / offline placeholder)
   ▼
@@ -101,7 +101,7 @@ base_url = ""           # optional: DeepSeek / Moonshot / Ollama bridge
 api_key = ""            # or export OPENAI_API_KEY
 
 [assets]
-backend = "placeholder" # placeholder | pexels | local
+backend = "placeholder" # placeholder | picsum | pexels | local
 
 [voiceover]
 backend = "silence"     # openai | silence

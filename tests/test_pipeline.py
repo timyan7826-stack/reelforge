@@ -98,6 +98,40 @@ def test_transition_and_caption_style(tmp_path):
 
 
 @pytest.mark.skipif(not HAVE_FFMPEG, reason="ffmpeg not installed")
+def test_assets_picsum_backend(tmp_path, monkeypatch):
+    """picsum backend downloads a real photo per scene; a network failure falls
+    back to a solid color frame and records a warning — determinism survives."""
+    import reelforge.stages.assets as assets_mod
+    from reelforge.utils.media import make_placeholder_image
+
+    calls = {"ok": True}
+
+    def fake_download(url, dest, **kw):
+        if not calls["ok"]:
+            raise RuntimeError("network down")
+        make_placeholder_image(dest, color="0x223344")  # real JPEG stub
+        return dest
+
+    monkeypatch.setattr(assets_mod, "download", fake_download)
+
+    cfg = _offline_cfg(tmp_path, seed=21)
+    cfg["assets"]["backend"] = "picsum"
+    result = run_pipeline(cfg, "Picsum test")
+    run_dir = result["run_dir"]
+    for i in range(1, 4):
+        assert (run_dir / "assets" / f"scene_{i:03d}.jpg").exists()
+    manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert len(manifest["asset_seeds"]) >= 3
+
+    # Network failure → solid-color fallback + warning, batch still completes.
+    calls["ok"] = False
+    cfg2 = _offline_cfg(tmp_path / "f", seed=22)
+    cfg2["assets"]["backend"] = "picsum"
+    result2 = run_pipeline(cfg2, "Picsum offline test")
+    assert any("picsum" in w for w in result2["warnings"])
+
+
+@pytest.mark.skipif(not HAVE_FFMPEG, reason="ffmpeg not installed")
 def test_batch_cli_produces_one_video_per_topic(tmp_path):
     from reelforge.cli import main
 

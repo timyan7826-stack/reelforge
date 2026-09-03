@@ -34,7 +34,7 @@ ReelForge 逐条回应：
   ▼
 [2] 分镜         每句台词 → 一条具体可拍的分镜视觉描述
   ▼
-[3] 素材         每个分镜的背景图（图库 / 本地 / 占位色块）
+[3] 素材         每个分镜的背景图（Pexels 图库 / picsum / 本地 / 占位色块）
   ▼
 [4] 配音         每场一句旁白 WAV（TTS / 离线占位）
   ▼
@@ -92,7 +92,7 @@ base_url = ""           # 可选：DeepSeek / Moonshot / Ollama 的 OpenAI 桥�
 api_key = ""            # 或导出环境变量 OPENAI_API_KEY
 
 [assets]
-backend = "placeholder" # placeholder | pexels | local
+backend = "placeholder" # placeholder | picsum | pexels | local
 
 [voiceover]
 backend = "silence"     # openai | silence

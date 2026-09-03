@@ -63,9 +63,10 @@ def load_config(path: str | Path) -> dict:
         raise ValueError(f"unknown LLM backend '{llm_kind}'. Known: {sorted(_LLM_BACKENDS)}")
     if tts_kind not in _TTS_BACKENDS:
         raise ValueError(f"unknown TTS backend '{tts_kind}'. Known: {sorted(_TTS_BACKENDS)}")
-    if assets_kind not in {"placeholder", "pexels", "local"}:
+    if assets_kind not in {"placeholder", "picsum", "pexels", "local"}:
         raise ValueError(
-            f"unknown assets backend '{assets_kind}'. Known: ['placeholder', 'pexels', 'local']"
+            f"unknown assets backend '{assets_kind}'. Known: "
+            "['placeholder', 'picsum', 'pexels', 'local']"
         )
 
     if not cfg["topic"]["default"] and not raw.get("topic"):
@@ -102,7 +103,7 @@ temperature = 0.7
 
 # ---- Visual assets ------------------------------------------------------
 [assets]
-backend = "placeholder" # placeholder | pexels | local
+backend = "placeholder" # placeholder | picsum | pexels | local
 api_key = ""            # Pexels key required for backend="pexels"
 dir = ""                # local image folder for backend="local"
 

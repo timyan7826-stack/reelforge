@@ -97,6 +97,7 @@ def run_pipeline(cfg: dict, topic: str, out_root: str | Path | None = None,
             "cost_report": "cost-report.json",
         },
         "total_duration_s": ctx.data.get("total_duration"),
+        "asset_seeds": ctx.data.get("asset_seeds"),
         "warnings": ctx.warnings,
         "finished_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
     }

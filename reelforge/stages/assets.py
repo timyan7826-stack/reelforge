@@ -2,6 +2,8 @@
 
 Backends:
 * ``placeholder`` — deterministic solid-color frames (default, no credentials).
+* ``picsum``      — real stock photos from picsum.photos, no API key, stable
+                    per seed (same topic reproduces the same frame sequence).
 * ``pexels``      — fetch a real stock photo per scene from Pexels (needs key).
 * ``local``       — reuse images from a local directory (round-robin).
 """
@@ -9,6 +11,7 @@ Backends:
 from __future__ import annotations
 
 import os
+import urllib.parse
 from pathlib import Path
 
 from reelforge.stages import PipelineContext, Stage
@@ -37,6 +40,8 @@ class AssetsStage(Stage):
 
         if backend == "pexels":
             self._run_pexels(ctx, scenes, out_dir)
+        elif backend == "picsum":
+            self._run_picsum(ctx, scenes, out_dir)
         elif backend == "local":
             self._run_local(ctx, scenes, out_dir)
         else:
@@ -58,6 +63,31 @@ class AssetsStage(Stage):
                 color=_PALETTE[i % len(_PALETTE)],
                 label=_safe_label(sc["text"]),
             )
+
+    def _run_picsum(self, ctx: PipelineContext, scenes: list[dict], out_dir: Path) -> None:
+        """Real photos from picsum.photos — no API key, deterministic per seed.
+
+        picsum.photos/seed/<s>/1920/1080 always returns the *same* photo for the
+        same seed, so a fixed topic reproduces the exact same frame sequence
+        (the reproducibility guarantee is preserved). If the network is down the
+        scene falls back to a solid color frame so a batch never breaks.
+        """
+        topic = ctx.data.get("topic") or "reelforge"
+        slug = _safe_label(topic).lower().replace(" ", "-")
+        seeds: list[str] = []
+        for i, sc in enumerate(scenes):
+            seed = f"{slug}-{i + 1}"
+            seeds.append(seed)
+            dst = out_dir / f"scene_{i + 1:03d}.jpg"
+            url = f"https://picsum.photos/seed/{urllib.parse.quote(seed)}/1920/1080"
+            try:
+                download(url, dst)
+            except Exception as exc:  # noqa: BLE001 — flaky network never breaks a batch
+                make_placeholder_image(
+                    dst, color=_PALETTE[i % len(_PALETTE)], label=_safe_label(sc["text"])
+                )
+                ctx.warn(f"picsum download failed for scene {i + 1}, used solid color: {exc}")
+        ctx.data["asset_seeds"] = seeds
 
     def _run_local(self, ctx: PipelineContext, scenes: list[dict], out_dir: Path) -> None:
         import shutil
