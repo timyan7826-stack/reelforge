@@ -55,6 +55,9 @@ class RenderStage(Stage):
         clips_dir = run_dir / "clips"
         clips_dir.mkdir(parents=True, exist_ok=True)
 
+        out_w = int(cfg.get("width", 1920))
+        out_h = int(cfg.get("height", 1080))
+
         # 1) per-scene clip
         for i, sc in enumerate(scenes):
             img = asset_dir / f"scene_{i + 1:03d}.jpg"
@@ -65,8 +68,8 @@ class RenderStage(Stage):
                 "-loop", "1", "-i", str(img),
                 "-i", str(wav),
                 "-vf", (
-                    "scale=1920:1080:force_original_aspect_ratio=decrease,"
-                    "pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=black"
+                    f"scale={out_w}:{out_h}:force_original_aspect_ratio=decrease,"
+                    f"pad={out_w}:{out_h}:(ow-iw)/2:(oh-ih)/2:color=black"
                 ),
                 "-t", f"{dur:.3f}",
                 "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p",

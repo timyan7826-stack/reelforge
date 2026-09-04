@@ -25,6 +25,8 @@ DEFAULTS: dict = {
         "transition": "none",          # none | fade | slideleft | circleopen | ...
         "transition_duration": 0.5,
         "caption_style": "clean",      # clean | pop | neon
+        "width": 1920,                 # output width px (1080 for 9:16 vertical)
+        "height": 1080,                # output height px (1920 for 9:16 vertical)
     },
     "output": {"dir": "output"},
     "reproducibility": {"seed": 0},
@@ -120,6 +122,8 @@ bgm = ""                # optional path to a background music file
 transition = "none"     # none | fade | slideleft | circleopen | ... (ffmpeg xfade)
 transition_duration = 0.5
 caption_style = "clean" # clean | pop | neon
+width = 1920            # output width px (1080 for 9:16 vertical)
+height = 1080           # output height px (1920 for 9:16 vertical)
 
 # ---- Output & reproducibility -------------------------------------------
 [output]

@@ -109,6 +109,8 @@ backend = "silence"     # openai | silence
 [render]
 subtitles = true
 bgm = ""                # optional background music file
+width = 1920            # output width px (1080 for 9:16 vertical)
+height = 1080           # output height px (1920 for 9:16 vertical)
 
 [reproducibility]
 seed = 0                # 0 = seed derived from topic (deterministic per topic)

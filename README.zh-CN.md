@@ -100,6 +100,8 @@ backend = "silence"     # openai | silence
 [render]
 subtitles = true
 bgm = ""                # 可选的背景音乐文件
+width = 1920            # 输出宽度（竖版 9:16 设为 1080）
+height = 1080           # 输出高度（竖版 9:16 设为 1920）
 
 [reproducibility]
 seed = 0                # 0 = 由主题推导 seed（每个主题确定性一致）

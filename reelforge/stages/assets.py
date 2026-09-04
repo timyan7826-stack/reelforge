@@ -57,9 +57,13 @@ class AssetsStage(Stage):
     # --- backends ---------------------------------------------------------
 
     def _run_placeholder(self, ctx: PipelineContext, scenes: list[dict], out_dir: Path) -> None:
+        w = int(ctx.cfg["render"].get("width", 1920))
+        h = int(ctx.cfg["render"].get("height", 1080))
         for i, sc in enumerate(scenes):
             make_placeholder_image(
                 out_dir / f"scene_{i + 1:03d}.jpg",
+                width=w,
+                height=h,
                 color=_PALETTE[i % len(_PALETTE)],
                 label=_safe_label(sc["text"]),
             )
@@ -79,12 +83,15 @@ class AssetsStage(Stage):
             seed = f"{slug}-{i + 1}"
             seeds.append(seed)
             dst = out_dir / f"scene_{i + 1:03d}.jpg"
-            url = f"https://picsum.photos/seed/{urllib.parse.quote(seed)}/1920/1080"
+            w = int(ctx.cfg["render"].get("width", 1920))
+            h = int(ctx.cfg["render"].get("height", 1080))
+            url = f"https://picsum.photos/seed/{urllib.parse.quote(seed)}/{w}/{h}"
             try:
                 download(url, dst)
             except Exception as exc:  # noqa: BLE001 — flaky network never breaks a batch
                 make_placeholder_image(
-                    dst, color=_PALETTE[i % len(_PALETTE)], label=_safe_label(sc["text"])
+                    dst, width=w, height=h,
+                    color=_PALETTE[i % len(_PALETTE)], label=_safe_label(sc["text"])
                 )
                 ctx.warn(f"picsum download failed for scene {i + 1}, used solid color: {exc}")
         ctx.data["asset_seeds"] = seeds

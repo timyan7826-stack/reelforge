@@ -152,3 +152,28 @@ def test_batch_cli_produces_one_video_per_topic(tmp_path):
 def test_empty_topic_rejected(tmp_path):
     with pytest.raises(ValueError):
         run_pipeline(_offline_cfg(tmp_path), "   ")
+
+
+@pytest.mark.skipif(not HAVE_FFMPEG, reason="ffmpeg not installed")
+def test_vertical_9x16_output(tmp_path):
+    """Custom output resolution: 1080x1920 (9:16) renders with correct dims."""
+    import subprocess
+
+    cfg = _offline_cfg(tmp_path, seed=31)
+    cfg["render"]["width"] = 1080
+    cfg["render"]["height"] = 1920
+    cfg["render"]["caption_style"] = "neon"
+    result = run_pipeline(cfg, "Vertical test")
+    video = result["final_video"]
+    assert video is not None and video.exists()
+    out = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "v:0",
+         "-show_entries", "stream=width,height", "-of", "csv=s=x:p=0", str(video)],
+        capture_output=True, text=True,
+    )
+    w, h = out.stdout.strip().split("x")
+    assert (int(w), int(h)) == (1080, 1920)
+    # caption ASS reflects the vertical resolution
+    run_dir = result["run_dir"]
+    ass = (run_dir / "captions.ass").read_text(encoding="utf-8")
+    assert "PlayResX: 1080" in ass and "PlayResY: 1920" in ass

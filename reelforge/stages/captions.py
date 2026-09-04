@@ -45,7 +45,9 @@ class CaptionsStage(Stage):
         transition_dur = float(render_cfg.get("transition_duration", 0.5))
 
         srt_lines: list[str] = []
-        ass_lines = self._ass_header(style)
+        ass_lines = self._ass_header(
+            style, render_cfg.get("width", 1920), render_cfg.get("height", 1080)
+        )
         t = 0.0
         for i, sc in enumerate(scenes):
             # Transitions overlap clips, so later scenes start earlier on the
@@ -77,13 +79,13 @@ class CaptionsStage(Stage):
         return f"{h}:{m:02d}:{s:02d}.{ms // 10:02d}"
 
     @staticmethod
-    def _ass_header(style: str = "clean") -> list[str]:
+    def _ass_header(style: str = "clean", width: int = 1920, height: int = 1080) -> list[str]:
         fontsize, primary, outline, shadow, bold, outline_w = _STYLES[style]
         return [
             "[Script Info]",
             "ScriptType: v4.00+",
-            "PlayResX: 1920",
-            "PlayResY: 1080",
+            f"PlayResX: {int(width)}",
+            f"PlayResY: {int(height)}",
             "WrapStyle: 0",
             "",
             "[V4+ Styles]",
